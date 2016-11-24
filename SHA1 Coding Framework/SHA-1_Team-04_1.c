@@ -29,27 +29,36 @@
 
 
 char* sha1Hash(char* guess) {
+    
+    unsigned int ws[80] = {0};
 
+    ws[0] = guess[0];
+    ws[0] <<= 8;
+    ws[0] |= guess[1];
+    ws[0] <<= 8;
+    ws[0] |= guess[2];
+    ws[0] <<= 8;
+    ws[0] |= guess[3];
+    ws[1] = guess[4];
+    ws[1] <<= 8;
+    ws[1] |= guess[5];
+    ws[1] <<= 1;
+    ws[1] |= 1;
+    ws[1] <<= 15;
+    ws[15] = 0x30;
+    
+    for (i = 16; i < 79; ++i) {
+       ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ((ws[i-16] << 1) | (ws[i-16] >> 31));
+    }
+    
     char* hash = "";
-    char x[511] = {"\x00"};
 
     // x0 = m0 m1 m2 m3
     // x1 = m4 m5 01 00
     // x2 = 00 00 00 00
     // x3 = ..
     // x15 = 00 00 00 00
-    x[0] = guess[0];
-    x[1] = guess[1];
-    x[2] = guess[2];
-    x[3] = guess[3];
-    x[4] = guess[4];
-    x[5] = guess[5];
-    x[6] = "\x01";
 
-    int i;
-    for (i = 16; i < 79; ++i) {
-       x[i] = (x[i-3] ^ x[i-8] ^ x[i-14] ^ x[i-16]);
-    }
     
 
     hash = x;
@@ -65,7 +74,7 @@ int crackHash(struct state hash, char *result) {
 
     char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
     char* hashStr;
-    char guess[5];
+    char guess[6];
     int i,j,k,l,m,n;
 
     for (i = 0; i<=25; i++) {
