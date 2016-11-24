@@ -1,5 +1,5 @@
 # Vim
 *.swp
-
+*.~
 # Executable
 crackSHA1
