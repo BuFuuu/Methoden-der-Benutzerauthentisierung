@@ -62,7 +62,7 @@ char* sha1Hash(char* guess) {
     unsigned int f, tmp;
     for (i = 0; i < 20; i++) {
         f = (b & c) | ((!b) & d);
-	tmp = ((a << 5) | (a >> 27)) + f + e + k + ws[i];
+	tmp = ((a << 5) | (a >> 27)) + f + e + K1 + ws[i];
 	e = d;
 	d = c;
 	c = (b << 30) | (b >> 2);
@@ -70,13 +70,31 @@ char* sha1Hash(char* guess) {
 	a = tmp;
     }
     for (; i < 40; i++) {
-         
+        f = b ^ c ^ d;
+	tmp = ((a << 5) | (a >> 27)) + f + e + K2 + ws[i];
+	e = d;
+	d = c;
+	c = (b << 30) | (b >> 2);
+	b = a;
+	a = tmp;
     }
     for (; i < 60; i++) {
-        
+        f = (b & c) | (b & d) | (c & d);
+	tmp = ((a << 5) | (a >> 27)) + f + e + K3 + ws[i];
+	e = d;
+	d = c;
+	c = (b << 30) | (b >> 2);
+	b = a;
+	a = tmp;
     }
     for (; i < 80; i++) {
-        
+        f = b ^ c ^ d;
+	tmp = ((a << 5) | (a >> 27)) + f + e + K4 + ws[i];
+	e = d;
+	d = c;
+	c = (b << 30) | (b >> 2);
+	b = a;
+	a = tmp;
     }
     
 }
