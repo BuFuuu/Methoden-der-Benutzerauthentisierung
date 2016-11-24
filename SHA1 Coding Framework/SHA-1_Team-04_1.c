@@ -28,7 +28,7 @@
 #define K4 0xca62c1d6
 
 
-char* sha1Hash(char* guess) {
+void sha1Hash(char* guess, char* res) {
     
     unsigned int ws[80] = {0};
     int i; 
@@ -96,7 +96,12 @@ char* sha1Hash(char* guess) {
 	b = a;
 	a = tmp;
     }
-    
+
+    res[0] = H0 + a;
+    res[1] = H1 + b;
+    res[2] = H2 + c;
+    res[3] = H3 + d;
+    res[4] = H4 + e;
 }
 
 
