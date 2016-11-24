@@ -31,7 +31,7 @@
 char* sha1Hash(char* guess) {
 
     char* hash = "";
-    char* x[511] = {"\x00"};
+    char x[511] = {"\x00"};
 
     // x0 = m0 m1 m2 m3
     // x1 = m4 m5 01 00
