@@ -49,7 +49,8 @@ void sha1Hash(char* guess, unsigned int* res) {
     ws[15] = 0x30;
     
     for (i = 16; i < 80; ++i) {
-       ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ((ws[i-16] << 1) | (ws[i-16] >> 31));
+       ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ws[i-16];
+       ws[i] = (ws[i] << 1) | (ws[i] > 31);
     }
 
     unsigned int a, b, c, d, e;
