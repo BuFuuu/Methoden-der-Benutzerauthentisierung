@@ -50,6 +50,24 @@ char* sha1Hash(char* guess) {
     for (i = 16; i < 79; ++i) {
        ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ((ws[i-16] << 1) | (ws[i-16] >> 31));
     }
+
+    unsigned int a, b, c, d, e;
+    a = H0;
+    b = H1;
+    c = H2;
+    d = H3;
+    e = H4;
+
+    unsigned int f, tmp;
+    for (i = 0; i < 20; i++) {
+        f = (b & c) | ((!b) & d);
+	tmp = ((a << 5) | (a >> 27)) + f + e + k + ws[i];
+	e = d;
+	d = c;
+	c = (b << 30) | (b >> 2);
+	b = a;
+	a = tmp;
+    }
     
     char* hash = "";
 
