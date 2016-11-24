@@ -62,7 +62,7 @@ void sha1Hash(char* guess, unsigned int* res) {
 
     unsigned int f, tmp;
     for (i = 0; i < 20; i++) {
-        f = (b & c) | ((!b) & d);
+        f = (b & c) | ((~b) & d);
 	tmp = ((a << 5) | (a >> 27)) + f + e + K1 + ws[i];
 	e = d;
 	d = c;
