@@ -31,6 +31,7 @@
 char* sha1Hash(char* guess) {
     
     unsigned int ws[80] = {0};
+    int i; 
 
     ws[0] = guess[0];
     ws[0] <<= 8;
@@ -51,21 +52,6 @@ char* sha1Hash(char* guess) {
        ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ((ws[i-16] << 1) | (ws[i-16] >> 31));
     }
     
-    char* hash = "";
-
-    // x0 = m0 m1 m2 m3
-    // x1 = m4 m5 01 00
-    // x2 = 00 00 00 00
-    // x3 = ..
-    // x15 = 00 00 00 00
-
-    
-
-    hash = x;
-    x[511] = "\x30";
-
-    __asm__("int3");
-    return hash;
 }
 
 
