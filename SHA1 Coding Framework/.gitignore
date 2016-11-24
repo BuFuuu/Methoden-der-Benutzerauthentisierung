@@ -1,5 +1,8 @@
 # Vim
 *.swp
 *.~
+.gdb_history
+peda-session-crackSHA1.txt
+
 # Executable
 crackSHA1

@@ -36,9 +36,7 @@ int main(int argc, char** argv) {
     printf("Hash: 0x%08X %08X %08X %08X %08X\n", hash.a, hash.b, hash.c, hash.d, hash.e);
 
     clock_t start = clock();
-    uint64_t cnt = rdtsc();
     error = crackHash(hash, result);
-    cnt = rdtsc() - cnt;
     clock_t stop = clock();
     double elapsed = (double)(stop - start) * 1000.0 / CLOCKS_PER_SEC;
 
@@ -48,7 +46,6 @@ int main(int argc, char** argv) {
     } else {
         printf("Preimge: %s\n", "NOT FOUND");
     }
-    printf("Cycles: %" PRIu64 "\n", cnt);
     printf("Time: %f\n", elapsed);
 
     return 0;
