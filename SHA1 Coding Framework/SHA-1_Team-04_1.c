@@ -69,6 +69,15 @@ char* sha1Hash(char* guess) {
 	b = a;
 	a = tmp;
     }
+    for (; i < 40; i++) {
+         
+    }
+    for (; i < 60; i++) {
+        
+    }
+    for (; i < 80; i++) {
+        
+    }
     
 }
 
