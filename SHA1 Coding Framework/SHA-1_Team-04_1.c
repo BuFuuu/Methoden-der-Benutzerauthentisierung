@@ -130,6 +130,20 @@ int crackHash(struct state hash, char *result) {
                             printf("Hier: %s \n", guess);
 
                             sha1Hash(guess, shaVal);
+                            if (hash.a == shaVal[0] && hash.b == shaVal[1] && hash.c == shaVal[2] && hash.d == shaVal[3] && hash.e == shaVal[4]) {
+
+                                result[0] = guess[0];
+                                result[1] = guess[1];
+                                result[2] = guess[2];
+                                result[3] = guess[3];
+                                result[4] = guess[4];
+                                result[5] = guess[5];
+                                /* Found */
+                                return(EXIT_SUCCESS);
+                                /* Not found */
+                                return(EXIT_FAILURE);
+                                
+                            }
 
                         }
                     }
@@ -138,14 +152,4 @@ int crackHash(struct state hash, char *result) {
         }
     }
 
-    result[0] = 'a';
-    result[1] = 'b';
-    result[2] = 'c';
-    result[3] = 'd';
-    result[4] = 'e';
-    result[5] = 'f';
-    /* Found */
-    return(EXIT_SUCCESS);
-    /* Not found */
-    return(EXIT_FAILURE);
 }
