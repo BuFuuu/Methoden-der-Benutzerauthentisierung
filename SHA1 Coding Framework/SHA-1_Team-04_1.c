@@ -1,4 +1,5 @@
 #include "sha1.h"
+#include <emmintrin.h>
 
 /**
  * THIS IS A TESTBENCH FOR SHA1 PASSWORD CRACKING
@@ -28,73 +29,110 @@
 #define K4 0xca62c1d6
 
 
-void sha1Hash(char* guess, unsigned int* res) {
-    
-    unsigned int ws[80] = {0};
-    int i; 
 
-    ws[0] = guess[0];
-    ws[0] <<= 8;
-    ws[0] |= guess[1];
-    ws[0] <<= 8;
-    ws[0] |= guess[2];
-    ws[0] <<= 8;
-    ws[0] |= guess[3];
-    ws[1] = guess[4];
-    ws[1] <<= 8;
-    ws[1] |= guess[5];
-    ws[1] <<= 1;
-    ws[1] |= 1;
-    ws[1] <<= 15;
-    ws[15] = 0x30;
+#define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32 ((x),(n)), _mm_srli_epi32 ((x), (32-(n))))
+#define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
+
+void sha1Hash(char* guess, unsigned int* res) {
+   
+    //Multiple Variable Declaration 
+     int i; 
+
+    __m128i ws[80] = _mm_set_epi32(0x0), tmp2, a,b,c,d,e, f, tmp;
+
+
+
+    ws[0] = _mm_set_epi32(guess[0], guess[0+6], guess[0+12], guess[0+18]);
+    _mm_slli_epi32(ws[0], 8);
+
+    tmp2 = _mm_set_epi32(guess[1], guess[1+6], guess[1+12], guess[1+18]);
+    ws[0] = _mm_or_si128(tmp2 , ws[0]);
+    _mm_slli_epi32(ws[0], 8);
+    
+    tmp2 = _mm_set_epi32(guess[2], guess[2+6], guess[2+12], guess[2+18]);
+    ws[0] = _mm_or_si128(tmp2 , ws[0]);
+    _mm_slli_epi32(ws[0], 8);
+    
+    tmp2 = _mm_set_epi32(guess[3], guess[3+6], guess[3+12], guess[3+18]);
+    ws[0] = _mm_or_si128(tmp2 , ws[0]);
+
+
+    ws[1] = _mm_set_epi32(guess[4], guess[4+6], guess[4+12], guess[4+18]);
+    _mm_slli_epi32(ws[1], 8);
+
+    tmp2 = _mm_set_epi32(guess[5], guess[5+6], guess[5+12], guess[5+18]);
+    ws[1] = _mm_or_si128(tmp2 , ws[1]);
+    _mm_slli_epi32(ws[1], 8);
+
+    tmp2 = _mm_set_epi32(1,1,1,1);
+    ws[1] = _mm_or_si128(tmp2 , ws[1]);
+    _mm_slli_epi32(ws[1], 15);
+
+    ws[15] = _mm_set1_epi32(0x30);
+
+//    ws[0] = guess[0];
+//    ws[0] <<= 8;
+//    ws[0] |= guess[1];
+//    ws[0] <<= 8;
+//    ws[0] |= guess[2];
+//    ws[0] <<= 8;
+//    ws[0] |= guess[3];
+//
+//
+//    ws[1] = guess[4];
+//    ws[1] <<= 8;
+//    ws[1] |= guess[5];
+//    ws[1] <<= 1;
+//    ws[1] |= 1;
+//    ws[1] <<= 15;
+//    ws[15] = 0x30;
     
     for (i = 16; i < 80; ++i) {
-       ws[i] = ws[i-3] ^ ws[i-8] ^ ws[i-14] ^ ws[i-16];
-       ws[i] = (ws[i] << 1) | (ws[i] >> 31);
+       ws[i] = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(ws[i-3], ws[i-8]), ws[i-14]), ws[i-16]);
+
+       ws[i] = ROTATE_LEFT128(ws[i], 1);
     }
 
-    unsigned int a, b, c, d, e;
     a = H0;
     b = H1;
     c = H2;
     d = H3;
     e = H4;
 
-    unsigned int f, tmp;
     for (i = 0; i < 20; i++) {
-        f = (b & c) | ((~b) & d);
-	tmp = ((a << 5) | (a >> 27)) + f + e + K1 + ws[i];
-	e = d;
-	d = c;
+        f = _mm_or_si128 (_mm_and_si128(b,c), _mm_andnot_si128(b,d));
+	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K1), ws[i]);
+	e =_mm_set1_epi32(d);
+	d = _mm_set1_epi32(c);
 	c = (b << 30) | (b >> 2);
-	b = a;
+	b = _mm_set1_epi32(a);
 	a = tmp;
     }
     for (; i < 40; i++) {
         f = b ^ c ^ d;
-	tmp = ((a << 5) | (a >> 27)) + f + e + K2 + ws[i];
-	e = d;
-	d = c;
+	tmp = ROTATE_LEFT(a, 5) + f + e + K2 + ws[i];
+	e = _mm_set1_epi32(d);
+	d = _mm_set1_epi32(c);
 	c = (b << 30) | (b >> 2);
-	b = a;
+	b = _mm_set1_epi32(a);
 	a = tmp;
     }
     for (; i < 60; i++) {
         f = (b & c) | (b & d) | (c & d);
-	tmp = ((a << 5) | (a >> 27)) + f + e + K3 + ws[i];
-	e = d;
-	d = c;
+	tmp = ROTATE_LEFT(a, 5) + f + e + K3 + ws[i];
+	e = _mm_set1_epi32(d);
+	d = _mm_set1_epi32(c);
 	c = (b << 30) | (b >> 2);
-	b = a;
+	b = _mm_set1_epi32(a);
 	a = tmp;
     }
     for (; i < 80; i++) {
         f = b ^ c ^ d;
-	tmp = ((a << 5) | (a >> 27)) + f + e + K4 + ws[i];
-	e = d;
-	d = c;
+	tmp = ROTATE_LEFT(a, 5) + f + e + K4 + ws[i];
+	e = _mm_set1_epi32(d);
+	d = _mm_set1_epi32(c);
 	c = (b << 30) | (b >> 2);
-	b = a;
+	b = _mm_set1_epi32(a);
 	a = tmp;
     }
 
@@ -110,8 +148,7 @@ int crackHash(struct state hash, char *result) {
 
 
     char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
-    char* hashStr;
-    char guess[6];
+    char guess[24];
     unsigned int shaVal[5];
     int i,j,k,l,m,n;
 
@@ -120,16 +157,59 @@ int crackHash(struct state hash, char *result) {
             for (k = 0; k<=25; k++) {
                 for (l = 0; l<=25; l++) {
                     for (m = 0; m<=25; m++) {
-                        for (n = 0; n<=25; n++) {
+                        for (n = 0; n<=25; n+=4) {
                             guess[0] = alphaNum[i];
                             guess[1] = alphaNum[j];
                             guess[2] = alphaNum[k];
                             guess[3] = alphaNum[l];
                             guess[4] = alphaNum[m];
                             guess[5] = alphaNum[n];
-                            printf("Hier: %s \n", guess);
+                            
+                            guess[6] = alphaNum[i];
+                            guess[7] = alphaNum[j];
+                            guess[8] = alphaNum[k];
+                            guess[9] = alphaNum[l];
+                            guess[10] = alphaNum[m];
+                            guess[11] = alphaNum[n+1];
+
+                            if (n+2 < 26) {
+                                guess[12] = alphaNum[i];
+                                guess[13] = alphaNum[j];
+                                guess[14] = alphaNum[k];
+                                guess[15] = alphaNum[l];
+                                guess[16] = alphaNum[m];
+                                guess[17] = alphaNum[n+2];
+                            } else {
+                                guess[12] = 0;
+                                guess[13] = 0;
+                                guess[14] = 0;
+                                guess[15] = 0;
+                                guess[16] = 0;
+                                guess[17] = 0;
+                                           }
+
+                            if (n+3 < 26) {
+                                guess[18] = alphaNum[i];
+                                guess[19] = alphaNum[j];
+                                guess[20] = alphaNum[k];
+                                guess[21] = alphaNum[l];
+                                guess[22] = alphaNum[m];
+                                guess[23] = alphaNum[n+3];
+                            } else {
+                                guess[18] = 0;
+                                guess[19] = 0;
+                                guess[20] = 0;
+                                guess[21] = 0;
+                                guess[22] = 0;
+                                guess[23] = 0;
+                            }
+
+
+                            //printf("Hier: %s \n", guess);
 
                             sha1Hash(guess, shaVal);
+
+
                             if (hash.a == shaVal[0] && hash.b == shaVal[1] && hash.c == shaVal[2] && hash.d == shaVal[3] && hash.e == shaVal[4]) {
 
                                 result[0] = guess[0];
@@ -140,8 +220,6 @@ int crackHash(struct state hash, char *result) {
                                 result[5] = guess[5];
                                 /* Found */
                                 return(EXIT_SUCCESS);
-                                /* Not found */
-                                return(EXIT_FAILURE);
                                 
                             }
 
@@ -151,5 +229,7 @@ int crackHash(struct state hash, char *result) {
             }
         }
     }
+    /* Not found */
+    return(EXIT_FAILURE);
 
 }
