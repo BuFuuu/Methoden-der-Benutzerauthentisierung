@@ -17,28 +17,27 @@
  * PROBLEM DESCRIPTION
  */
 
-#define H0 0x67452301
-#define H1 0xefcdab89
-#define H2 0x98badcfe
-#define H3 0x10325476
-#define H4 0xc3d2e1f0
+#define H_0 0x67452301
+#define H_1 0xefcdab89
+#define H_2 0x98badcfe
+#define H_3 0x10325476
+#define H_4 0xc3d2e1f0
 
-#define K1 0x5a827999
-#define K2 0x6ed9eba1
-#define K3 0x8f1bbcdc
-#define K4 0xca62c1d6
+#define K_1 0x5a827999
+#define K_2 0x6ed9eba1
+#define K_3 0x8f1bbcdc
+#define K_4 0xca62c1d6
 
 
 
 #define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32 ((x),(n)), _mm_srli_epi32 ((x), (32-(n))))
 #define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 
-void sha1Hash(char* guess, unsigned int* res) {
+void sha1Hash(char* guess, __m128i *res) {
    
     //Multiple Variable Declaration 
      int i; 
-
-    __m128i ws[80] = _mm_set_epi32(0x0), tmp2, a,b,c,d,e, f, tmp;
+    __m128i ws[80] = {_mm_set1_epi32(0x0)}, tmp2, a,b,c,d,e, K1,K2,K3,K4, H0,H1,H2,H3,H4, f, tmp;
 
 
 
@@ -62,8 +61,9 @@ void sha1Hash(char* guess, unsigned int* res) {
 
     tmp2 = _mm_set_epi32(guess[5], guess[5+6], guess[5+12], guess[5+18]);
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
-    _mm_slli_epi32(ws[1], 8);
+    _mm_slli_epi32(ws[1], 1);
 
+    //append 1 to message
     tmp2 = _mm_set_epi32(1,1,1,1);
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
     _mm_slli_epi32(ws[1], 15);
@@ -93,63 +93,79 @@ void sha1Hash(char* guess, unsigned int* res) {
        ws[i] = ROTATE_LEFT128(ws[i], 1);
     }
 
-    a = H0;
-    b = H1;
-    c = H2;
-    d = H3;
-    e = H4;
+    a = _mm_set1_epi32(H_0);
+    b = _mm_set1_epi32(H_1);
+    c = _mm_set1_epi32(H_2);
+    d = _mm_set1_epi32(H_3);
+    e = _mm_set1_epi32(H_4);
+
+    H0 = _mm_set1_epi32(H_0);
+    H1 = _mm_set1_epi32(H_1);
+    H2 = _mm_set1_epi32(H_2);
+    H3 = _mm_set1_epi32(H_3);
+    H4 = _mm_set1_epi32(H_4);
+
+    K1 = _mm_set1_epi32(K_1);
+    K2 = _mm_set1_epi32(K_2);
+    K3 = _mm_set1_epi32(K_3);
+    K4 = _mm_set1_epi32(K_4);
 
     for (i = 0; i < 20; i++) {
-        f = _mm_or_si128 (_mm_and_si128(b,c), _mm_andnot_si128(b,d));
+        f = _mm_or_si128(_mm_and_si128(b,c), _mm_andnot_si128(b,d));
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K1), ws[i]);
-	e =_mm_set1_epi32(d);
-	d = _mm_set1_epi32(c);
-	c = (b << 30) | (b >> 2);
-	b = _mm_set1_epi32(a);
+	e = d;
+	d = c;
+	c = ROTATE_LEFT(b, 30);
+	b = a;
 	a = tmp;
     }
     for (; i < 40; i++) {
-        f = b ^ c ^ d;
-	tmp = ROTATE_LEFT(a, 5) + f + e + K2 + ws[i];
-	e = _mm_set1_epi32(d);
-	d = _mm_set1_epi32(c);
-	c = (b << 30) | (b >> 2);
-	b = _mm_set1_epi32(a);
+        f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K2), ws[i]);
+	e = d;
+	d = c;
+	c = ROTATE_LEFT(b, 30);
+	b = a;
 	a = tmp;
     }
     for (; i < 60; i++) {
-        f = (b & c) | (b & d) | (c & d);
-	tmp = ROTATE_LEFT(a, 5) + f + e + K3 + ws[i];
-	e = _mm_set1_epi32(d);
-	d = _mm_set1_epi32(c);
-	c = (b << 30) | (b >> 2);
-	b = _mm_set1_epi32(a);
+        f = _mm_or_si128(_mm_or_si128(_mm_and_si128(b,c), _mm_and_si128(b,d)),_mm_and_si128(c,d));
+	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K3), ws[i]);
+	e = e;
+	d = c;
+	c = ROTATE_LEFT(b, 30);
+	b = a;
 	a = tmp;
     }
     for (; i < 80; i++) {
-        f = b ^ c ^ d;
-	tmp = ROTATE_LEFT(a, 5) + f + e + K4 + ws[i];
-	e = _mm_set1_epi32(d);
-	d = _mm_set1_epi32(c);
-	c = (b << 30) | (b >> 2);
-	b = _mm_set1_epi32(a);
+        f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[i]);
+	e = d;
+	d = c;
+	c = ROTATE_LEFT(b, 30);
+	b = a;
 	a = tmp;
     }
 
-    res[0] = H0 + a;
-    res[1] = H1 + b;
-    res[2] = H2 + c;
-    res[3] = H3 + d;
-    res[4] = H4 + e;
+    res[0] = _mm_add_epi32(H0, a);
+    res[1] = _mm_add_epi32(H1 ,b);
+    res[2] = _mm_add_epi32(H2 ,c);
+    res[3] = _mm_add_epi32(H3 ,d);
+    res[4] = _mm_add_epi32(H4 ,e);
 }
 
 
 int crackHash(struct state hash, char *result) {
 
+    __m128i hash128a = _mm_set1_epi32(hash.a);
+    __m128i hash128b = _mm_set1_epi32(hash.b);
+    __m128i hash128c = _mm_set1_epi32(hash.c);
+    __m128i hash128d = _mm_set1_epi32(hash.d);
+    __m128i hash128e = _mm_set1_epi32(hash.e);
 
     char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
     char guess[24];
-    unsigned int shaVal[5];
+    __m128i shaVal[5];
     int i,j,k,l,m,n;
 
     for (i = 0; i<=25; i++) {
@@ -205,12 +221,26 @@ int crackHash(struct state hash, char *result) {
                             }
 
 
-                            //printf("Hier: %s \n", guess);
-
+                            ////////////////////////
                             sha1Hash(guess, shaVal);
+                            ////////////////////////
 
 
-                            if (hash.a == shaVal[0] && hash.b == shaVal[1] && hash.c == shaVal[2] && hash.d == shaVal[3] && hash.e == shaVal[4]) {
+                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128a, shaVal[0]))){
+                                    return(EXIT_SUCCESS);
+                            }
+                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, shaVal[1]))){
+                                    return(EXIT_SUCCESS);
+                            }
+                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, shaVal[2]))){
+                                    return(EXIT_SUCCESS);
+                            }
+                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, shaVal[3]))){
+                                    return(EXIT_SUCCESS);
+                            }
+                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, shaVal[4]))){
+                                    return(EXIT_SUCCESS);
+                            }
 
                                 result[0] = guess[0];
                                 result[1] = guess[1];
@@ -221,7 +251,7 @@ int crackHash(struct state hash, char *result) {
                                 /* Found */
                                 return(EXIT_SUCCESS);
                                 
-                            }
+                            
 
                         }
                     }
