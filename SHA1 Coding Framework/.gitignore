@@ -1,6 +1,7 @@
 # Vim
 *.swp
 *~
+SHA-1_Team-04_1.c~
 .backup
 .gdb_history
 peda-session-crackSHA1.txt
