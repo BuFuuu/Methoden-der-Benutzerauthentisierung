@@ -42,31 +42,31 @@ void sha1Hash(char* guess, __m128i *res) {
 
 
     ws[0] = _mm_set_epi32(guess[0], guess[0+6], guess[0+12], guess[0+18]);
-    _mm_slli_epi32(ws[0], 8);
+    ws[0] = _mm_slli_epi32(ws[0], 8);
 
     tmp2 = _mm_set_epi32(guess[1], guess[1+6], guess[1+12], guess[1+18]);
     ws[0] = _mm_or_si128(tmp2 , ws[0]);
-    _mm_slli_epi32(ws[0], 8);
+    ws[0] = _mm_slli_epi32(ws[0], 8);
     
     tmp2 = _mm_set_epi32(guess[2], guess[2+6], guess[2+12], guess[2+18]);
     ws[0] = _mm_or_si128(tmp2 , ws[0]);
-    _mm_slli_epi32(ws[0], 8);
+    ws[0] = _mm_slli_epi32(ws[0], 8);
     
     tmp2 = _mm_set_epi32(guess[3], guess[3+6], guess[3+12], guess[3+18]);
     ws[0] = _mm_or_si128(tmp2 , ws[0]);
 
 
     ws[1] = _mm_set_epi32(guess[4], guess[4+6], guess[4+12], guess[4+18]);
-    _mm_slli_epi32(ws[1], 8);
+    ws[1] = _mm_slli_epi32(ws[1], 8);
 
     tmp2 = _mm_set_epi32(guess[5], guess[5+6], guess[5+12], guess[5+18]);
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
-    _mm_slli_epi32(ws[1], 1);
+    ws[1] = _mm_slli_epi32(ws[1], 1);
 
     //append 1 to message
     tmp2 = _mm_set_epi32(1,1,1,1);
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
-    _mm_slli_epi32(ws[1], 15);
+    ws[1] = _mm_slli_epi32(ws[1], 15);
 
     ws[15] = _mm_set1_epi32(0x30);
 
@@ -131,7 +131,7 @@ void sha1Hash(char* guess, __m128i *res) {
     for (; i < 60; i++) {
         f = _mm_or_si128(_mm_or_si128(_mm_and_si128(b,c), _mm_and_si128(b,d)),_mm_and_si128(c,d));
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K3), ws[i]);
-	e = e;
+	e = d;
 	d = c;
 	c = ROTATE_LEFT(b, 30);
 	b = a;
@@ -173,7 +173,7 @@ int crackHash(struct state hash, char *result) {
             for (k = 0; k<=25; k++) {
                 for (l = 0; l<=25; l++) {
                     for (m = 0; m<=25; m++) {
-                        for (n = 0; n<=25; n+=4) {
+                        for (n = 0; n<=25; n+=4) {//TODO kann ich hier nicht manche n's vergessen wenn einfach nur immer plus 4¿
                             guess[0] = alphaNum[i];
                             guess[1] = alphaNum[j];
                             guess[2] = alphaNum[k];
