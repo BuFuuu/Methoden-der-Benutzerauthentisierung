@@ -30,7 +30,8 @@
 
 
 
-#define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32 ((x),(n)), _mm_srli_epi32 ((x), (32-(n))))
+//#define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32((x),(n)), _mm_srli_epi32((x), (32-(n))))
+#define ROTATE_LEFT128(x, n) _mm_or_si128 (_mm_slli_epi32 ((x), (n)), _mm_srli_epi32 ((x), (32 - (n))))
 #define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 
 void sha1Hash(char* guess, __m128i *res) {
@@ -115,7 +116,9 @@ void sha1Hash(char* guess, __m128i *res) {
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K1), ws[i]);
 	e = d;
 	d = c;
-	c = ROTATE_LEFT(b, 30);
+
+	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+	//c = ROTATE_LEFT(b, 30);
 	b = a;
 	a = tmp;
     }
@@ -124,7 +127,7 @@ void sha1Hash(char* guess, __m128i *res) {
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K2), ws[i]);
 	e = d;
 	d = c;
-	c = ROTATE_LEFT(b, 30);
+	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
 	b = a;
 	a = tmp;
     }
@@ -133,7 +136,7 @@ void sha1Hash(char* guess, __m128i *res) {
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K3), ws[i]);
 	e = d;
 	d = c;
-	c = ROTATE_LEFT(b, 30);
+	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
 	b = a;
 	a = tmp;
     }
@@ -142,7 +145,7 @@ void sha1Hash(char* guess, __m128i *res) {
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[i]);
 	e = d;
 	d = c;
-	c = ROTATE_LEFT(b, 30);
+	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
 	b = a;
 	a = tmp;
     }
