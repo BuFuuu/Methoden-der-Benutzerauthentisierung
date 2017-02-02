@@ -1,0 +1,162 @@
+$> ./simple_matcher -p images/101_1.xyt -g images | sort -k6 --numeric-sort
+101_1.xyt, full: images/101_1.xyt
+101_2.xyt, full: images/101_2.xyt
+101_3.xyt, full: images/101_3.xyt
+101_4.xyt, full: images/101_4.xyt
+101_5.xyt, full: images/101_5.xyt
+101_6.xyt, full: images/101_6.xyt
+101_7.xyt, full: images/101_7.xyt
+101_8.xyt, full: images/101_8.xyt
+102_1.xyt, full: images/102_1.xyt
+102_2.xyt, full: images/102_2.xyt
+102_3.xyt, full: images/102_3.xyt
+102_4.xyt, full: images/102_4.xyt
+102_5.xyt, full: images/102_5.xyt
+102_6.xyt, full: images/102_6.xyt
+102_7.xyt, full: images/102_7.xyt
+102_8.xyt, full: images/102_8.xyt
+103_1.xyt, full: images/103_1.xyt
+103_2.xyt, full: images/103_2.xyt
+103_3.xyt, full: images/103_3.xyt
+103_4.xyt, full: images/103_4.xyt
+103_5.xyt, full: images/103_5.xyt
+103_6.xyt, full: images/103_6.xyt
+103_7.xyt, full: images/103_7.xyt
+103_8.xyt, full: images/103_8.xyt
+104_1.xyt, full: images/104_1.xyt
+104_2.xyt, full: images/104_2.xyt
+104_3.xyt, full: images/104_3.xyt
+104_4.xyt, full: images/104_4.xyt
+104_5.xyt, full: images/104_5.xyt
+104_6.xyt, full: images/104_6.xyt
+104_7.xyt, full: images/104_7.xyt
+104_8.xyt, full: images/104_8.xyt
+105_1.xyt, full: images/105_1.xyt
+105_2.xyt, full: images/105_2.xyt
+105_3.xyt, full: images/105_3.xyt
+105_4.xyt, full: images/105_4.xyt
+105_5.xyt, full: images/105_5.xyt
+105_6.xyt, full: images/105_6.xyt
+105_7.xyt, full: images/105_7.xyt
+105_8.xyt, full: images/105_8.xyt
+106_1.xyt, full: images/106_1.xyt
+106_2.xyt, full: images/106_2.xyt
+106_3.xyt, full: images/106_3.xyt
+106_4.xyt, full: images/106_4.xyt
+106_5.xyt, full: images/106_5.xyt
+106_6.xyt, full: images/106_6.xyt
+106_7.xyt, full: images/106_7.xyt
+106_8.xyt, full: images/106_8.xyt
+107_1.xyt, full: images/107_1.xyt
+107_2.xyt, full: images/107_2.xyt
+107_3.xyt, full: images/107_3.xyt
+107_4.xyt, full: images/107_4.xyt
+107_5.xyt, full: images/107_5.xyt
+107_6.xyt, full: images/107_6.xyt
+107_7.xyt, full: images/107_7.xyt
+107_8.xyt, full: images/107_8.xyt
+108_1.xyt, full: images/108_1.xyt
+108_2.xyt, full: images/108_2.xyt
+108_3.xyt, full: images/108_3.xyt
+108_4.xyt, full: images/108_4.xyt
+108_5.xyt, full: images/108_5.xyt
+108_6.xyt, full: images/108_6.xyt
+108_7.xyt, full: images/108_7.xyt
+108_8.xyt, full: images/108_8.xyt
+109_1.xyt, full: images/109_1.xyt
+109_2.xyt, full: images/109_2.xyt
+109_3.xyt, full: images/109_3.xyt
+109_4.xyt, full: images/109_4.xyt
+109_5.xyt, full: images/109_5.xyt
+109_6.xyt, full: images/109_6.xyt
+109_7.xyt, full: images/109_7.xyt
+109_8.xyt, full: images/109_8.xyt
+110_1.xyt, full: images/110_1.xyt
+110_2.xyt, full: images/110_2.xyt
+110_3.xyt, full: images/110_3.xyt
+110_4.xyt, full: images/110_4.xyt
+110_5.xyt, full: images/110_5.xyt
+110_6.xyt, full: images/110_6.xyt
+110_7.xyt, full: images/110_7.xyt
+110_8.xyt, full: images/110_8.xyt
+Looking for images in dir: images
+Node: 0x85a120, Path: images/109_4.xyt, Score: 1
+Node: 0x86fa20, Path: images/105_5.xyt, Score: 1
+Node: 0x872d20, Path: images/103_6.xyt, Score: 1
+Node: 0x8759c0, Path: images/105_8.xyt, Score: 1
+Node: 0x87ec60, Path: images/101_8.xyt, Score: 1
+Node: 0x8627c0, Path: images/101_7.xyt, Score: 2
+Node: 0x86f3c0, Path: images/104_7.xyt, Score: 2
+Node: 0x873380, Path: images/107_8.xyt, Score: 2
+Node: 0x8739e0, Path: images/101_4.xyt, Score: 2
+Node: 0x879fe0, Path: images/101_5.xyt, Score: 2
+Node: 0x87a640, Path: images/107_7.xyt, Score: 2
+Node: 0x87b960, Path: images/108_5.xyt, Score: 2
+Node: 0x8805e0, Path: images/101_3.xyt, Score: 2
+Node: 0x864e00, Path: images/102_8.xyt, Score: 3
+Node: 0x86e0a0, Path: images/107_5.xyt, Score: 3
+Node: 0x875360, Path: images/106_4.xyt, Score: 3
+Node: 0x878000, Path: images/106_5.xyt, Score: 3
+Node: 0x87f2c0, Path: images/102_6.xyt, Score: 3
+Node: 0x862e20, Path: images/101_6.xyt, Score: 4
+Node: 0x8647a0, Path: images/107_2.xyt, Score: 4
+Node: 0x865460, Path: images/109_3.xyt, Score: 4
+Node: 0x865ac0, Path: images/105_4.xyt, Score: 4
+Node: 0x866de0, Path: images/107_1.xyt, Score: 4
+Node: 0x867440, Path: images/102_4.xyt, Score: 4
+Node: 0x869a80, Path: images/105_7.xyt, Score: 4
+Node: 0x86a0e0, Path: images/105_3.xyt, Score: 4
+Node: 0x86a740, Path: images/104_6.xyt, Score: 4
+Node: 0x86ada0, Path: images/107_6.xyt, Score: 4
+Node: 0x86ba60, Path: images/108_7.xyt, Score: 4
+Node: 0x86c720, Path: images/109_8.xyt, Score: 4
+Node: 0x86ed60, Path: images/105_2.xyt, Score: 4
+Node: 0x876680, Path: images/106_1.xyt, Score: 4
+Node: 0x87cc80, Path: images/105_6.xyt, Score: 4
+Node: 0x86b400, Path: images/102_3.xyt, Score: 5
+Node: 0x86d3e0, Path: images/104_5.xyt, Score: 5
+Node: 0x871a00, Path: images/106_7.xyt, Score: 5
+Node: 0x872060, Path: images/103_8.xyt, Score: 5
+Node: 0x876020, Path: images/102_7.xyt, Score: 5
+Node: 0x8779a0, Path: images/108_4.xyt, Score: 5
+Node: 0x879320, Path: images/108_3.xyt, Score: 5
+Node: 0x87bfc0, Path: images/109_7.xyt, Score: 5
+Node: 0x87d2e0, Path: images/106_2.xyt, Score: 5
+Node: 0x87d940, Path: images/105_1.xyt, Score: 5
+Node: 0x863480, Path: images/103_2.xyt, Score: 6
+Node: 0x869420, Path: images/109_6.xyt, Score: 6
+Node: 0x8706e0, Path: images/108_2.xyt, Score: 6
+Node: 0x876ce0, Path: images/109_1.xyt, Score: 6
+Node: 0x877340, Path: images/108_8.xyt, Score: 6
+Node: 0x87b300, Path: images/102_1.xyt, Score: 6
+Node: 0x880c40, Path: images/107_4.xyt, Score: 6
+Node: 0x863ae0, Path: images/107_3.xyt, Score: 7
+Node: 0x866120, Path: images/108_6.xyt, Score: 7
+Node: 0x87dfa0, Path: images/103_4.xyt, Score: 7
+Node: 0x87f920, Path: images/104_1.xyt, Score: 7
+Node: 0x8812a0, Path: images/103_3.xyt, Score: 7
+Node: 0x868dc0, Path: images/108_1.xyt, Score: 8
+Node: 0x86cd80, Path: images/110_6.xyt, Score: 8
+Node: 0x86e700, Path: images/102_5.xyt, Score: 8
+Node: 0x874040, Path: images/110_7.xyt, Score: 8
+Node: 0x878cc0, Path: images/110_5.xyt, Score: 8
+Node: 0x87aca0, Path: images/104_3.xyt, Score: 8
+Node: 0x87ff80, Path: images/109_2.xyt, Score: 8
+Node: 0x879980, Path: images/103_5.xyt, Score: 9
+Node: 0x87e600, Path: images/106_6.xyt, Score: 9
+Node: 0x864140, Path: images/101_2.xyt, Score: 10
+Node: 0x868100, Path: images/110_4.xyt, Score: 10
+Node: 0x86c0c0, Path: images/110_3.xyt, Score: 10
+Node: 0x8713a0, Path: images/103_1.xyt, Score: 10
+Node: 0x8746a0, Path: images/106_3.xyt, Score: 10
+Node: 0x881900, Path: images/109_5.xyt, Score: 10
+Node: 0x867aa0, Path: images/106_8.xyt, Score: 12
+Node: 0x8726c0, Path: images/104_2.xyt, Score: 12
+Node: 0x874d00, Path: images/103_7.xyt, Score: 12
+Node: 0x87c620, Path: images/110_1.xyt, Score: 12
+Node: 0x870d40, Path: images/110_2.xyt, Score: 15
+Node: 0x868760, Path: images/104_4.xyt, Score: 16
+Node: 0x86da40, Path: images/102_2.xyt, Score: 17
+Node: 0x878660, Path: images/110_8.xyt, Score: 17
+Node: 0x866780, Path: images/104_8.xyt, Score: 19
+Node: 0x870080, Path: images/101_1.xyt, Score: 76
