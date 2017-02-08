@@ -1,0 +1,1 @@
+./crackSHA1 `echo -ne "aaaaaa" | sha1sum | awk '{printf $1}'`

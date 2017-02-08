@@ -71,23 +71,6 @@ void sha1Hash(char* guess, __m128i *res) {
 
     ws[15] = _mm_set1_epi32(0x30);
 
-//    ws[0] = guess[0];
-//    ws[0] <<= 8;
-//    ws[0] |= guess[1];
-//    ws[0] <<= 8;
-//    ws[0] |= guess[2];
-//    ws[0] <<= 8;
-//    ws[0] |= guess[3];
-//
-//
-//    ws[1] = guess[4];
-//    ws[1] <<= 8;
-//    ws[1] |= guess[5];
-//    ws[1] <<= 1;
-//    ws[1] |= 1;
-//    ws[1] <<= 15;
-//    ws[15] = 0x30;
-    
     for (i = 16; i < 80; ++i) {
        ws[i] = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(ws[i-3], ws[i-8]), ws[i-14]), ws[i-16]);
 
@@ -118,7 +101,6 @@ void sha1Hash(char* guess, __m128i *res) {
 	d = c;
 
 	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
-	//c = ROTATE_LEFT(b, 30);
 	b = a;
 	a = tmp;
     }
@@ -176,7 +158,7 @@ int crackHash(struct state hash, char *result) {
             for (k = 0; k<=25; k++) {
                 for (l = 0; l<=25; l++) {
                     for (m = 0; m<=25; m++) {
-                        for (n = 0; n<=25; n+=4) {//TODO kann ich hier nicht manche n's vergessen wenn einfach nur immer plus 4¿
+                        for (n = 0; n<=25; n+=4) {
                             guess[0] = alphaNum[i];
                             guess[1] = alphaNum[j];
                             guess[2] = alphaNum[k];
@@ -228,33 +210,62 @@ int crackHash(struct state hash, char *result) {
                             sha1Hash(guess, shaVal);
                             ////////////////////////
 
+                            //If cmpeg does find some equal values then it will return 0xffffffff for the correct value
+                            //and every other bits of the 128 will be 0x0.
+                            //Movemask will find out if there is 0xf in the 128 bit and returns greater 1 if so.
+			    int aEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128a, shaVal[0]));
+			    int bEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, shaVal[1]));
+			    int cEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, shaVal[2]));
+			    int dEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, shaVal[3]));
+			    int eEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, shaVal[4]));
+                            unsigned char whereIsTheOnes ;
+                            __m128i equalValIsOnes;
 
-                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128a, shaVal[0]))){
-                                    return(EXIT_SUCCESS);
-                            }
-                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, shaVal[1]))){
-                                    return(EXIT_SUCCESS);
-                            }
-                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, shaVal[2]))){
-                                    return(EXIT_SUCCESS);
-                            }
-                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, shaVal[3]))){
-                                    return(EXIT_SUCCESS);
-                            }
-                            if (_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, shaVal[4]))){
-                                    return(EXIT_SUCCESS);
-                            }
+                            if (aEq && bEq && cEq && dEq && eEq){
+                                equalValIsOnes = _mm_cmpeq_epi32(hash128a, shaVal[0]);
 
-                                result[0] = guess[0];
-                                result[1] = guess[1];
-                                result[2] = guess[2];
-                                result[3] = guess[3];
-                                result[4] = guess[4];
-                                result[5] = guess[5];
-                                /* Found */
-                                return(EXIT_SUCCESS);
-                                
-                            
+
+                                whereIsTheOnes = ((unsigned char *)&equalValIsOnes)[4]; 
+                                if (((unsigned char *)&equalValIsOnes)[13]) {
+                                    result[0] = guess[0];
+                                    result[1] = guess[1];
+                                    result[2] = guess[2];
+                                    result[3] = guess[3];
+                                    result[4] = guess[4];
+                                    result[5] = guess[5];
+                                    return(EXIT_SUCCESS);
+                                }
+
+                                if (((unsigned char *)&equalValIsOnes)[9]) {
+                                    result[0] = guess[6];
+                                    result[1] = guess[7];
+                                    result[2] = guess[8];
+                                    result[3] = guess[9];
+                                    result[4] = guess[10];
+                                    result[5] = guess[11];
+                                    return(EXIT_SUCCESS);
+                                }
+
+                                if (((unsigned char *)&equalValIsOnes)[5]) {
+                                    result[0] = guess[12];
+                                    result[1] = guess[13];
+                                    result[2] = guess[14];
+                                    result[3] = guess[15];
+                                    result[4] = guess[16];
+                                    result[5] = guess[17];
+                                    return(EXIT_SUCCESS);
+                                }
+
+                                //if default
+                                    result[0] = guess[18];
+                                    result[1] = guess[19];
+                                    result[2] = guess[20];
+                                    result[3] = guess[21];
+                                    result[4] = guess[22];
+                                    result[5] = guess[23];
+                                    return(EXIT_SUCCESS);
+
+                            }
 
                         }
                     }
