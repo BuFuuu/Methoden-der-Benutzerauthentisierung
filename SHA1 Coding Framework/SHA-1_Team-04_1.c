@@ -218,14 +218,11 @@ int crackHash(struct state hash, char *result) {
 			    int cEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, shaVal[2]));
 			    int dEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, shaVal[3]));
 			    int eEq =_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, shaVal[4]));
-                            unsigned char whereIsTheOnes ;
                             __m128i equalValIsOnes;
 
                             if (aEq && bEq && cEq && dEq && eEq){
                                 equalValIsOnes = _mm_cmpeq_epi32(hash128a, shaVal[0]);
 
-
-                                whereIsTheOnes = ((unsigned char *)&equalValIsOnes)[4]; 
                                 if (((unsigned char *)&equalValIsOnes)[13]) {
                                     result[0] = guess[0];
                                     result[1] = guess[1];
