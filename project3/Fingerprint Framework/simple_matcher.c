@@ -292,9 +292,9 @@ struct xyt_struct alignment(struct xyt_struct probe, struct xyt_struct galleryim
     // All that is left to do is adjust the gallery image by the calculated
     // x, y and theta differences.
     for(i = 0; i < galleryimage.nrows; i++) {
-        galleryimage.xcol[i] += BUCKET_SIZE * max_xPos + BUCKET_SIZE / 2;
-        galleryimage.ycol[i] += BUCKET_SIZE * max_yPos + BUCKET_SIZE / 2;
-        galleryimage.thetacol[i] += BUCKET_SIZE * max_tPos + BUCKET_SIZE / 2;
+        galleryimage.xcol[i] += BUCKET_SIZE * max_xPos /*+ BUCKET_SIZE / 2*/;
+        galleryimage.ycol[i] += BUCKET_SIZE * max_yPos /*+ BUCKET_SIZE / 2*/;
+        galleryimage.thetacol[i] += BUCKET_SIZE * max_tPos /*+ BUCKET_SIZE / 2*/;
     }
     
     // Cleanup: free memory. Garbage collection is awesome.
