@@ -1,0 +1,18 @@
+#Quick test to check if !SOME! values are correct by looking at the results
+./crackSHA1 `echo -ne "aaaaaa" | sha1sum | awk '{printf $1}'` && echo "aaaaaa"
+./crackSHA1 `echo -ne "aaaaab" | sha1sum | awk '{printf $1}'` && echo "aaaaab"
+./crackSHA1 `echo -ne "aaaaac" | sha1sum | awk '{printf $1}'` && echo "aaaaac"
+./crackSHA1 `echo -ne "aaaaad" | sha1sum | awk '{printf $1}'` && echo "aaaaad"
+./crackSHA1 `echo -ne "aaaaae" | sha1sum | awk '{printf $1}'` && echo "aaaaae"
+./crackSHA1 `echo -ne "aaaaaf" | sha1sum | awk '{printf $1}'` && echo "aaaaaf"
+./crackSHA1 `echo -ne "aaaaag" | sha1sum | awk '{printf $1}'` && echo "aaaaag"
+./crackSHA1 `echo -ne "aaaaah" | sha1sum | awk '{printf $1}'` && echo "aaaaah"
+./crackSHA1 `echo -ne "aaaaax" | sha1sum | awk '{printf $1}'` && echo "aaaaax"
+./crackSHA1 `echo -ne "aaaaay" | sha1sum | awk '{printf $1}'` && echo "aaaaay"
+./crackSHA1 `echo -ne "aaaaaz" | sha1sum | awk '{printf $1}'` && echo "aaaaaz"
+./crackSHA1 `echo -ne "aaaqqq" | sha1sum | awk '{printf $1}'` && echo "aaaqqq"
+./crackSHA1 `echo -ne "aaaxxq" | sha1sum | awk '{printf $1}'` && echo "aaaxxq"
+./crackSHA1 `echo -ne "aaazzz" | sha1sum | awk '{printf $1}'` && echo "aaazzz"
+./crackSHA1 `echo -ne "aaaral" | sha1sum | awk '{printf $1}'` && echo "aaaral"
+./crackSHA1 `echo -ne "aabcdz" | sha1sum | awk '{printf $1}'` && echo "aabcdz"
+./crackSHA1 `echo -ne "acbcdz" | sha1sum | awk '{printf $1}'` && echo "acbcdz" #best: 685

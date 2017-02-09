@@ -38,7 +38,7 @@ void sha1Hash(char* guess, __m128i *res) {
    
     //Multiple Variable Declaration 
      int i; 
-    __m128i ws[80] = {_mm_set1_epi32(0x0)}, tmp2, a,b,c,d,e, K1,K2,K3,K4, H0,H1,H2,H3,H4, f, tmp;
+    __m128i ws[80] = {_mm_set1_epi32(0x0)}, tmp2, a,b,c,d,e, K1,K2,K3,K4, f, tmp;
 
 
 
@@ -83,12 +83,6 @@ void sha1Hash(char* guess, __m128i *res) {
     d = _mm_set1_epi32(H_3);
     e = _mm_set1_epi32(H_4);
 
-    H0 = _mm_set1_epi32(H_0);
-    H1 = _mm_set1_epi32(H_1);
-    H2 = _mm_set1_epi32(H_2);
-    H3 = _mm_set1_epi32(H_3);
-    H4 = _mm_set1_epi32(H_4);
-
     K1 = _mm_set1_epi32(K_1);
     K2 = _mm_set1_epi32(K_2);
     K3 = _mm_set1_epi32(K_3);
@@ -122,7 +116,7 @@ void sha1Hash(char* guess, __m128i *res) {
 	b = a;
 	a = tmp;
     }
-    for (; i < 80; i++) {
+    for (; i < 77; i++) {
         f = _mm_xor_si128(_mm_xor_si128(b,c), d);
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[i]);
 	e = d;
@@ -132,21 +126,51 @@ void sha1Hash(char* guess, __m128i *res) {
 	a = tmp;
     }
 
-    res[0] = _mm_add_epi32(H0, a);
-    res[1] = _mm_add_epi32(H1 ,b);
-    res[2] = _mm_add_epi32(H2 ,c);
-    res[3] = _mm_add_epi32(H3 ,d);
-    res[4] = _mm_add_epi32(H4 ,e);
+    //Round 77 unrolled Loop
+    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[77]);
+    e = d;
+    d = c;
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+    b = a;
+    a = tmp;
+
+    //Round 78 unrolled Loop
+    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[78]);
+    e = d;
+    d = c;
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+    b = a;
+    a = tmp;
+
+    //Round 79 unrolled Loop
+    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[79]);
+    e = d;
+    d = c;
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+    b = a;
+    a = tmp;
+
+
+    //No need for adding constants because of Early-Exit Optimization
+    res[0] = a;
+    res[1] = b;
+    res[2] = c;
+    res[3] = d;
+    res[4] = e;
 }
 
 
 int crackHash(struct state hash, char *result) {
 
-    __m128i hash128a = _mm_set1_epi32(hash.a);
-    __m128i hash128b = _mm_set1_epi32(hash.b);
-    __m128i hash128c = _mm_set1_epi32(hash.c);
-    __m128i hash128d = _mm_set1_epi32(hash.d);
-    __m128i hash128e = _mm_set1_epi32(hash.e);
+    //Subtract Constants to apply Early-exit Optimization
+    __m128i hash128a = _mm_set1_epi32(hash.a-H_0);
+    __m128i hash128b = _mm_set1_epi32(hash.b-H_1);
+    __m128i hash128c = _mm_set1_epi32(hash.c-H_2);
+    __m128i hash128d = _mm_set1_epi32(hash.d-H_3);
+    __m128i hash128e = _mm_set1_epi32(hash.e-H_4);
 
     char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
     char guess[24];
