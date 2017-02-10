@@ -38,9 +38,10 @@
 #define FCALC_1(b, c, d) _mm_or_si128(_mm_and_si128(b,c), _mm_andnot_si128(b,d))
 #define FCALC_2_4(b, c, d) _mm_xor_si128(_mm_xor_si128(b,c), d)
 #define FCALC_3(b, c, d) _mm_or_si128(_mm_or_si128(_mm_and_si128(b,c), _mm_and_si128(b,d)),_mm_and_si128(c,d))
+#define TMP(a,f,e,K,i) _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K), ws[i])
 #define MAIN_LOOP(K, i, a, c, d, e, f) \
 { \
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K), ws[i]); \
+    tmp = TMP(a,f,e,K,i); \
     e = d; \
     d = c; \
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2)); \
@@ -55,7 +56,8 @@
 #define MAIN_LOOP_2_4_5(K, i, a, b, c, d, e) MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e)
 #define MAIN_LOOP_3_5(K, i, a, b, c, d, e) MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e)
 
-void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m128i hash128d, __m128i hash128e) {
+// Static Inline Functions
+static inline void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m128i hash128d, __m128i hash128e) {
    
     //Multiple Variable Declaration 
     int i = 0; 
@@ -131,8 +133,8 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     MAIN_LOOP_2_4_5(K4, i, a, b, c, d, e);
 
     //Round 75 unrolled Loop
-    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[75]);
+    f = FCALC_2_4(b,c,d);
+    tmp = TMP(a,f,e,K4,75); 
     //Early-Exit: tmp->a->b->c->e so if tmp has nothing equal to hash128c it can't be the correct one
     if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, tmp))) { return; }
     e = d;
@@ -142,8 +144,8 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     a = tmp;
 
     //Round 76 unrolled Loop
-    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[76]);
+    f = FCALC_2_4(b,c,d);
+    tmp = TMP(a,f,e,K4,76); 
     //Early-Exit: tmp->a->b->c->d so if tmp has nothing equal to hash128c it can't be the correct one
     if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, tmp))) { return; }
     e = d;
@@ -153,8 +155,8 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     a = tmp;
 
     //Round 77 unrolled Loop
-    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[77]);
+    f = FCALC_2_4(b,c,d);
+    tmp = TMP(a,f,e,K4,77); 
     //Early-Exit: tmp->a->b->c so if tmp has nothing equal to hash128c it can't be the correct one
     if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, tmp))) { return; }
     e = d;
@@ -164,8 +166,8 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     a = tmp;
 
     //Round 78 unrolled Loop
-    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[78]);
+    f = FCALC_2_4(b,c,d);
+    tmp = TMP(a,f,e,K4,78); 
     //Early-Exit: tmp->a->b so if tmp has nothing equal to hash128b it can't be the correct one
     if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, tmp))) { return; }
     e = d;
@@ -175,8 +177,8 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     a = tmp;
 
     //Round 79 unrolled Loop
-    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[79]);
+    f = FCALC_2_4(b,c,d);
+    tmp = TMP(a,f,e,K4,79); 
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2)); 
@@ -307,7 +309,7 @@ int crackHash(struct state hash, char *result) {
                                     return(EXIT_SUCCESS);
                                 }
 
-                                //if default
+                                // if (default) 
                                     result[0] = guess[18];
                                     result[1] = guess[19];
                                     result[2] = guess[20];
