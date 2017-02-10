@@ -17,6 +17,7 @@
  * PROBLEM DESCRIPTION
  */
 
+// Define Constants
 #define H_0 0x67452301
 #define H_1 0xefcdab89
 #define H_2 0x98badcfe
@@ -28,9 +29,7 @@
 #define K_3 0x8f1bbcdc
 #define K_4 0xca62c1d6
 
-
-
-//#define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32((x),(n)), _mm_srli_epi32((x), (32-(n))))
+// Define macros for rotations
 #define ROTATE_LEFT128(x, n) _mm_or_si128 (_mm_slli_epi32 ((x), (n)), _mm_srli_epi32 ((x), (32 - (n))))
 #define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 #define ROTATE_RIGHT(x,n) (((x) >> (n)) | ((x) << (32-(n))))
@@ -86,7 +85,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
     ws[1] = _mm_slli_epi32(ws[1], 1);
 
-    //append 1 to message
+    // Append 1 to message
     tmp2 = _mm_set_epi32(1,1,1,1);
     ws[1] = _mm_or_si128(tmp2 , ws[1]);
     ws[1] = _mm_slli_epi32(ws[1], 15);
@@ -110,43 +109,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     K3 = _mm_set1_epi32(K_3);
     K4 = _mm_set1_epi32(K_4);
 
-    /*for (i = 0; i < 20; i++) {
-        f = _mm_or_si128(_mm_and_si128(b,c), _mm_andnot_si128(b,d));
-	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K1), ws[i]);
-	e = d;
-	d = c;
-
-	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
-	b = a;
-	a = tmp;
-    }
-    for (; i < 40; i++) {
-        f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K2), ws[i]);
-	e = d;
-	d = c;
-	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
-	b = a;
-	a = tmp;
-    }
-    for (; i < 60; i++) {
-        f = _mm_or_si128(_mm_or_si128(_mm_and_si128(b,c), _mm_and_si128(b,d)),_mm_and_si128(c,d));
-	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K3), ws[i]);
-	e = d;
-	d = c;
-	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
-	b = a;
-	a = tmp;
-    }
-    for (; i < 75; i++) {
-        f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[i]);
-	e = d;
-	d = c;
-	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
-	b = a;
-	a = tmp;
-    }*/
+    // Loop unrolling
     i = 0;
     MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
     MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
@@ -171,9 +134,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[75]);
     //Early-Exit: tmp->a->b->c->e so if tmp has nothing equal to hash128c it can't be the correct one
-    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, tmp))) {
-        return;
-    }
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, tmp))) { return; }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
@@ -184,9 +145,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[76]);
     //Early-Exit: tmp->a->b->c->d so if tmp has nothing equal to hash128c it can't be the correct one
-    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, tmp))) {
-        return;
-    }
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, tmp))) { return; }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
@@ -197,9 +156,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[77]);
     //Early-Exit: tmp->a->b->c so if tmp has nothing equal to hash128c it can't be the correct one
-    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, tmp))) {
-        return;
-    }
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, tmp))) { return; }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
@@ -210,9 +167,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[78]);
     //Early-Exit: tmp->a->b so if tmp has nothing equal to hash128b it can't be the correct one
-    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, tmp))) {
-        return;
-    }
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, tmp))) { return; }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
