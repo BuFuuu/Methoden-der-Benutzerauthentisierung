@@ -33,8 +33,9 @@
 //#define ROTATE_LEFT128(x,n) _mm_or_si128 (_mm_slli_epi32((x),(n)), _mm_srli_epi32((x), (32-(n))))
 #define ROTATE_LEFT128(x, n) _mm_or_si128 (_mm_slli_epi32 ((x), (n)), _mm_srli_epi32 ((x), (32 - (n))))
 #define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
+#define ROTATE_RIGHT(x,n) (((x) >> (n)) | ((x) << (32-(n))))
 
-void sha1Hash(char* guess, __m128i *res) {
+void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m128i hash128d, __m128i hash128e) {
    
     //Multiple Variable Declaration 
      int i; 
@@ -116,7 +117,7 @@ void sha1Hash(char* guess, __m128i *res) {
 	b = a;
 	a = tmp;
     }
-    for (; i < 77; i++) {
+    for (; i < 75; i++) {
         f = _mm_xor_si128(_mm_xor_si128(b,c), d);
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[i]);
 	e = d;
@@ -126,21 +127,55 @@ void sha1Hash(char* guess, __m128i *res) {
 	a = tmp;
     }
 
-    //Round 77 unrolled Loop
+    //Round 75 unrolled Loop
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[77]);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[75]);
+    //Early-Exit: tmp->a->b->c->e so if tmp has nothing equal to hash128c it can't be the correct one
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128e, tmp))) {
+        return;
+    }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
     b = a;
     a = tmp;
 
-    //Round 78 unrolled Loop
+    //Round 76 unrolled Loop
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
-    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[78]);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[76]);
+    //Early-Exit: tmp->a->b->c->d so if tmp has nothing equal to hash128c it can't be the correct one
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128d, tmp))) {
+        return;
+    }
     e = d;
     d = c;
     c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+    b = a;
+    a = tmp;
+
+    //Round 77 unrolled Loop
+    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[77]);
+    //Early-Exit: tmp->a->b->c so if tmp has nothing equal to hash128c it can't be the correct one
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128c, tmp))) {
+        return;
+    }
+    e = d;
+    d = c;
+    c = b;
+    b = a;
+    a = tmp;
+
+    //Round 78 unrolled Loop
+    f = _mm_xor_si128(_mm_xor_si128(b,c), d);
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[78]);
+    //Early-Exit: tmp->a->b so if tmp has nothing equal to hash128b it can't be the correct one
+    if (!_mm_movemask_epi8(_mm_cmpeq_epi32(hash128b, tmp))) {
+        return;
+    }
+    e = d;
+    d = c;
+    c = b;
     b = a;
     a = tmp;
 
@@ -149,7 +184,7 @@ void sha1Hash(char* guess, __m128i *res) {
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[79]);
     e = d;
     d = c;
-    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
+    c = b; 
     b = a;
     a = tmp;
 
@@ -168,9 +203,9 @@ int crackHash(struct state hash, char *result) {
     //Subtract Constants to apply Early-exit Optimization
     __m128i hash128a = _mm_set1_epi32(hash.a-H_0);
     __m128i hash128b = _mm_set1_epi32(hash.b-H_1);
-    __m128i hash128c = _mm_set1_epi32(hash.c-H_2);
-    __m128i hash128d = _mm_set1_epi32(hash.d-H_3);
-    __m128i hash128e = _mm_set1_epi32(hash.e-H_4);
+    __m128i hash128c = _mm_set1_epi32(ROTATE_RIGHT(hash.c-H_2,30));
+    __m128i hash128d = _mm_set1_epi32(ROTATE_RIGHT(hash.d-H_2,30));
+    __m128i hash128e = _mm_set1_epi32(ROTATE_RIGHT(hash.e-H_2,30));
 
     char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
     char guess[24];
@@ -231,7 +266,7 @@ int crackHash(struct state hash, char *result) {
 
 
                             ////////////////////////
-                            sha1Hash(guess, shaVal);
+                            sha1Hash(guess, shaVal, hash128b,  hash128c,  hash128d,  hash128e);
                             ////////////////////////
 
                             //If cmpeg does find some equal values then it will return 0xffffffff for the correct value
