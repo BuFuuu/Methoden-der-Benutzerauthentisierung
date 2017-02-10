@@ -162,7 +162,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     }
     e = d;
     d = c;
-    c = b;
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
     b = a;
     a = tmp;
 
@@ -175,7 +175,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     }
     e = d;
     d = c;
-    c = b;
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
     b = a;
     a = tmp;
 
@@ -184,7 +184,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K4), ws[79]);
     e = d;
     d = c;
-    c = b; 
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2)); 
     b = a;
     a = tmp;
 
@@ -203,11 +203,11 @@ int crackHash(struct state hash, char *result) {
     //Subtract Constants to apply Early-exit Optimization
     __m128i hash128a = _mm_set1_epi32(hash.a-H_0);
     __m128i hash128b = _mm_set1_epi32(hash.b-H_1);
-    __m128i hash128c = _mm_set1_epi32(ROTATE_RIGHT(hash.c-H_2,30));
-    __m128i hash128d = _mm_set1_epi32(ROTATE_RIGHT(hash.d-H_2,30));
-    __m128i hash128e = _mm_set1_epi32(ROTATE_RIGHT(hash.e-H_2,30));
+    __m128i hash128c = _mm_set1_epi32(hash.c-H_2);
+    __m128i hash128d = _mm_set1_epi32(hash.d-H_3);
+    __m128i hash128e = _mm_set1_epi32(hash.e-H_4);
 
-    char alphaNum[] = "abcdefghijklmnopqrstuvwxyz";
+    char letters[] = "abcdefghijklmnopqrstuvwxyz";
     char guess[24];
     __m128i shaVal[5];
     int i,j,k,l,m,n;
@@ -218,27 +218,27 @@ int crackHash(struct state hash, char *result) {
                 for (l = 0; l<=25; l++) {
                     for (m = 0; m<=25; m++) {
                         for (n = 0; n<=25; n+=4) {
-                            guess[0] = alphaNum[i];
-                            guess[1] = alphaNum[j];
-                            guess[2] = alphaNum[k];
-                            guess[3] = alphaNum[l];
-                            guess[4] = alphaNum[m];
-                            guess[5] = alphaNum[n];
+                            guess[0] = letters[i];
+                            guess[1] = letters[j];
+                            guess[2] = letters[k];
+                            guess[3] = letters[l];
+                            guess[4] = letters[m];
+                            guess[5] = letters[n];
                             
-                            guess[6] = alphaNum[i];
-                            guess[7] = alphaNum[j];
-                            guess[8] = alphaNum[k];
-                            guess[9] = alphaNum[l];
-                            guess[10] = alphaNum[m];
-                            guess[11] = alphaNum[n+1];
+                            guess[6] = letters[i];
+                            guess[7] = letters[j];
+                            guess[8] = letters[k];
+                            guess[9] = letters[l];
+                            guess[10] = letters[m];
+                            guess[11] = letters[n+1];
 
                             if (n+2 < 26) {
-                                guess[12] = alphaNum[i];
-                                guess[13] = alphaNum[j];
-                                guess[14] = alphaNum[k];
-                                guess[15] = alphaNum[l];
-                                guess[16] = alphaNum[m];
-                                guess[17] = alphaNum[n+2];
+                                guess[12] = letters[i];
+                                guess[13] = letters[j];
+                                guess[14] = letters[k];
+                                guess[15] = letters[l];
+                                guess[16] = letters[m];
+                                guess[17] = letters[n+2];
                             } else {
                                 guess[12] = 0;
                                 guess[13] = 0;
@@ -249,12 +249,12 @@ int crackHash(struct state hash, char *result) {
                                            }
 
                             if (n+3 < 26) {
-                                guess[18] = alphaNum[i];
-                                guess[19] = alphaNum[j];
-                                guess[20] = alphaNum[k];
-                                guess[21] = alphaNum[l];
-                                guess[22] = alphaNum[m];
-                                guess[23] = alphaNum[n+3];
+                                guess[18] = letters[i];
+                                guess[19] = letters[j];
+                                guess[20] = letters[k];
+                                guess[21] = letters[l];
+                                guess[22] = letters[m];
+                                guess[23] = letters[n+3];
                             } else {
                                 guess[18] = 0;
                                 guess[19] = 0;
@@ -266,7 +266,7 @@ int crackHash(struct state hash, char *result) {
 
 
                             ////////////////////////
-                            sha1Hash(guess, shaVal, hash128b,  hash128c,  hash128d,  hash128e);
+                            sha1Hash(guess, shaVal, hash128b, _mm_set1_epi32(ROTATE_RIGHT(hash.c-H_2,30)), _mm_set1_epi32(ROTATE_RIGHT(hash.d-H_3,30)), _mm_set1_epi32(ROTATE_RIGHT(hash.e-H_4,30)));
                             ////////////////////////
 
                             //If cmpeg does find some equal values then it will return 0xffffffff for the correct value
