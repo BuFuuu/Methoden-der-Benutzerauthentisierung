@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 import org.jblas.DoubleMatrix;
 
@@ -29,8 +30,10 @@ public class PGM  implements Comparable<PGM>{
 	public double distanceToTest;
 	
 	
-	public PGM(InputStream in, String path) {
-		
+	public PGM(InputStream uin, String path) {
+
+		InputStream in = new BufferedInputStream(uin);
+
 		/* Save path for later */
 		this.path = path;
 
