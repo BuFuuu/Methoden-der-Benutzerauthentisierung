@@ -1,4 +1,8 @@
 /**
+ * Team 04
+ * Johann Beleites - 108015252567
+ * Lion Hellstern - 108015263368
+ *
  * Simple C-Tool that performes the simple matching algorithm. 
  * The -h flag can be used to toggle the use of the Hough-Transformation
  * The -p flag is used to determine a probe image in the xyt format
@@ -32,10 +36,9 @@
 #include <string.h>
 
 #define MAX_MINUTIAE    130        /* should be ajusted if a file has more minutiae */
+// Not required for our implementation: 
 //#define A_X             400        /* used for Array in alignment, should be */
-#define A_X             2048        /* used for Array in alignment, should be */
 //#define A_Y             500        /* adjusted if out of boundaries error occurs*/
-#define A_Y             2048        /* adjusted if out of boundaries error occurs*/
 #define threshold_d      14        /* for getScore */
 #define threshold_r      18        /* for getScore */
 #define thres_t          18        /* for alignment */
@@ -55,6 +58,7 @@ struct node {
     struct node *next;
 };
 
+// Node struct to create a linked list for the sparse 3D-array
 struct sa_node {
     struct sa_node *next;
     union Value {
@@ -290,7 +294,10 @@ struct xyt_struct alignment(struct xyt_struct probe, struct xyt_struct galleryim
     }
     
     // All that is left to do is adjust the gallery image by the calculated
-    // x, y and theta differences.
+    // x, y and theta differences. Also Add half of BUCKET_SIZE to each value,
+    // as we then get the average value by which we need to adjust the image,
+    // if we assume that the values are distributed evenly along the range
+    // of the bucket.
     for(i = 0; i < galleryimage.nrows; i++) {
         galleryimage.xcol[i] += BUCKET_SIZE * max_xPos + BUCKET_SIZE / 2;
         galleryimage.ycol[i] += BUCKET_SIZE * max_yPos + BUCKET_SIZE / 2;
@@ -474,32 +481,32 @@ struct xyt_struct loadMinutiae(const char *xyt_file) {
     FILE *fp;
     // We open the file in read-only mode
     if(fp = fopen(xyt_file, "r")) {
-		int i, r, x, y, theta, q;
-		char ignore;
+        int i, r, x, y, theta, q;
+        char ignore;
 
         // If a line is larger than 512 byte there is probably
         // something wrong anyway and we will discard the line.
-		const int bufsize = 512;
-		char lbuffer[bufsize];
+        const int bufsize = 512;
+        char lbuffer[bufsize];
 
-		for(i = 0; i < MAX_MINUTIAE; i++) {
-			if(fgets(lbuffer, bufsize, fp) != NULL) {
-				r = sscanf(lbuffer, "%i %i %i %i %c", &x, &y, &theta, &q, &ignore);
+        for(i = 0; i < MAX_MINUTIAE; i++) {
+            if(fgets(lbuffer, bufsize, fp) != NULL) {
+                r = sscanf(lbuffer, "%i %i %i %i %c", &x, &y, &theta, &q, &ignore);
 
-				// Filter out all lines with too few/many values. r denotes
+                // Filter out all lines with too few/many values. r denotes
                 // the number of values read from the line.
-				if(r < 3 || r > 4) continue;
+                if(r < 3 || r > 4) continue;
 				
                 // Store the data in the data structure
-				res.nrows = i+1;
-				res.xcol[i] = x;
-				res.ycol[i] = y;
-				res.thetacol[i] = theta;
-			} else {
+                res.nrows = i+1;
+                res.xcol[i] = x;
+                res.ycol[i] = y;
+                res.thetacol[i] = theta;
+            } else {
                 // We have reached the EOF
-				break;
-			}
-		}
+                break;
+            }
+        }
 		
         // Cleanup
         if(fp != NULL) fclose(fp);
