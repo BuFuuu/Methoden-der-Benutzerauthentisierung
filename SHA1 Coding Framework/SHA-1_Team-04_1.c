@@ -35,10 +35,31 @@
 #define ROTATE_LEFT(x,n) (((x) << (n)) | ((x) >> (32-(n))))
 #define ROTATE_RIGHT(x,n) (((x) >> (n)) | ((x) << (32-(n))))
 
+// Define macros for loop unrolling
+#define FCALC_1(b, c, d) _mm_or_si128(_mm_and_si128(b,c), _mm_andnot_si128(b,d))
+#define FCALC_2_4(b, c, d) _mm_xor_si128(_mm_xor_si128(b,c), d)
+#define FCALC_3(b, c, d) _mm_or_si128(_mm_or_si128(_mm_and_si128(b,c), _mm_and_si128(b,d)),_mm_and_si128(c,d))
+#define MAIN_LOOP(K, i, a, c, d, e, f) \
+{ \
+    tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K), ws[i]); \
+    e = d; \
+    d = c; \
+    c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2)); \
+    b = a; \
+    a = tmp; \
+    i++; \
+}
+#define MAIN_LOOP_1(K, i, a, b, c, d, e) MAIN_LOOP(K, i, a, c, d, e, FCALC_1(b, c, d))
+#define MAIN_LOOP_2_4(K, i, a, b, c, d, e) MAIN_LOOP(K, i, a, c, d, e, FCALC_2_4(b, c, d))
+#define MAIN_LOOP_3(K, i, a, b, c, d, e) MAIN_LOOP(K, i, a, c, d, e, FCALC_3(b, c, d))
+#define MAIN_LOOP_1_5(K, i, a, b, c, d, e) MAIN_LOOP_1(K, i, a, b, c, d, e); MAIN_LOOP_1(K, i, a, b, c, d, e); MAIN_LOOP_1(K, i, a, b, c, d, e); MAIN_LOOP_1(K, i, a, b, c, d, e); MAIN_LOOP_1(K, i, a, b, c, d, e)
+#define MAIN_LOOP_2_4_5(K, i, a, b, c, d, e) MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e); MAIN_LOOP_2_4(K, i, a, b, c, d, e)
+#define MAIN_LOOP_3_5(K, i, a, b, c, d, e) MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e); MAIN_LOOP_3(K, i, a, b, c, d, e)
+
 void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m128i hash128d, __m128i hash128e) {
    
     //Multiple Variable Declaration 
-     int i; 
+    int i = 0; 
     __m128i ws[80] = {_mm_set1_epi32(0x0)}, tmp2, a,b,c,d,e, K1,K2,K3,K4, f, tmp;
 
 
@@ -89,7 +110,7 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
     K3 = _mm_set1_epi32(K_3);
     K4 = _mm_set1_epi32(K_4);
 
-    for (i = 0; i < 20; i++) {
+    /*for (i = 0; i < 20; i++) {
         f = _mm_or_si128(_mm_and_si128(b,c), _mm_andnot_si128(b,d));
 	tmp = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_add_epi32(ROTATE_LEFT128(a, 5), f), e), K1), ws[i]);
 	e = d;
@@ -125,7 +146,26 @@ void sha1Hash(char* guess, __m128i *res, __m128i hash128b, __m128i hash128c, __m
 	c = _mm_or_si128(_mm_slli_epi32(b, 30), _mm_srli_epi32(b, 2));
 	b = a;
 	a = tmp;
-    }
+    }*/
+    i = 0;
+    MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
+    MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
+    MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
+    MAIN_LOOP_1_5(K1, i, a, b, c, d, e);
+
+    MAIN_LOOP_2_4_5(K2, i, a, b, c, d, e);
+    MAIN_LOOP_2_4_5(K2, i, a, b, c, d, e);
+    MAIN_LOOP_2_4_5(K2, i, a, b, c, d, e);
+    MAIN_LOOP_2_4_5(K2, i, a, b, c, d, e);
+    
+    MAIN_LOOP_3_5(K3, i, a, b, c, d, e);
+    MAIN_LOOP_3_5(K3, i, a, b, c, d, e);
+    MAIN_LOOP_3_5(K3, i, a, b, c, d, e);
+    MAIN_LOOP_3_5(K3, i, a, b, c, d, e);
+    
+    MAIN_LOOP_2_4_5(K4, i, a, b, c, d, e);
+    MAIN_LOOP_2_4_5(K4, i, a, b, c, d, e);
+    MAIN_LOOP_2_4_5(K4, i, a, b, c, d, e);
 
     //Round 75 unrolled Loop
     f = _mm_xor_si128(_mm_xor_si128(b,c), d);
